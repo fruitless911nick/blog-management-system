@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<h1>My Profile</h1>
+
+<p>
+    Username:
+    <span th:text="${user.username}">
+    </span>
+</p>
+
+<p>
+    Email:
+    <span th:text="${user.email}">
+    </span>
+</p>
+
+<hr>
+
+<h2>My Posts</h2>
+
+<div th:each="post : ${posts}">
+
+    <h3 th:text="${post.title}">
+    </h3>
+
+    <a th:href="@{/post/{id}(id=${post.id})}">
+        View Post
+    </a>
+
+    <hr>
+
+</div>
+
+</body>
+</html>

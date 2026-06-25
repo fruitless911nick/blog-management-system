@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<h1>All Blog Posts</h1>
+<a href="/logout">Logout</a>
+<form action="/search" method="get">
+
+    <input type="text"
+           name="keyword"
+           placeholder="Search Posts">
+
+    <button type="submit">
+        Search
+    </button>
+
+</form>
+
+<br>
+
+<a href="/post/create">
+    Create New Post
+</a>
+<a href="/profile">
+    My Profile
+</a>
+
+<hr>
+
+<div th:each="post : ${posts}">
+	
+	<img th:if="${post.imageName != null}"
+	     th:src="@{/uploads/{img}(img=${post.imageName})}"
+	     width="200">
+
+    <h2 th:text="${post.title}"></h2>
+
+    <p th:text="${post.content}"></p>
+
+	<p>
+	    Author :
+	    <span th:text="${post.author.username}"></span>
+	</p>
+	<p>
+	    Created:
+	    <span th:text="${post.createdAt}">
+	    </span>
+	</p>
+
+	<p th:if="${post.category != null}">
+	    Category :
+	    <span th:text="${post.category.name}">
+	    </span>
+	</p>
+		<a th:href="@{/post/{id}(id=${post.id})}">
+		    Read More
+		</a>
+    
+
+    <hr>
+
+</div>
+
+</body>
+</html>
