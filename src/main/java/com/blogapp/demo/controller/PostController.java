@@ -22,6 +22,8 @@ import com.blogapp.demo.repository.CategoryRepository;
 import com.blogapp.demo.repository.PostRepository;
 import com.blogapp.demo.repository.UserRepository;
 
+import jakarta.servlet.http.HttpServletResponse;
+
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -81,8 +83,11 @@ public class PostController {
 
 	    return "redirect:/";
 	}
-@GetMapping("/")
-public String home(Model model) {
+	@GetMapping("/")
+	public String home(Model model,Principal principal, HttpServletResponse response) {
+		response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+		response.setHeader("Pragma", "no-cache");
+		response.setDateHeader("Expires", 0);
 
     model.addAttribute("posts",postRepository.findAll());
 
