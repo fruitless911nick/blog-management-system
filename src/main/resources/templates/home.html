@@ -6,9 +6,8 @@
 <a href="/logout">Logout</a>
 <form action="/search" method="get">
 
-    <input type="text"
-           name="keyword"
-           placeholder="Search Posts">
+	<input type="text" name="keyword" placeholder="Search by title, author, category or date (YYYY-MM-DD)..."
+	       required>
 
     <button type="submit">
         Search
@@ -29,9 +28,7 @@
 
 <div th:each="post : ${posts}">
 	
-	<img th:if="${post.imageName != null}"
-	     th:src="@{/uploads/{img}(img=${post.imageName})}"
-	     width="200">
+	<img th:if="${post.imageName != null}" th:src="@{/uploads/{img}(img=${post.imageName})}" width="200">
 
     <h2 th:text="${post.title}"></h2>
 

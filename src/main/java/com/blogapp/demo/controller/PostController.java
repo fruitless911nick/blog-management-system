@@ -51,39 +51,28 @@ public class PostController {
 	        throws Exception {
 
 	    // Logged-in user
-	    String email = principal.getName();
+	    String email = principal.getName();  // user ka email lega jo login kiya hai
 
 	    User user = userRepository.findByEmail(email);
 
 	    post.setAuthor(user);
 
 	    // Category
-	    Category category =
-	            categoryRepository.findById(
-	                    post.getCategory().getId())
-	                    .orElse(null);
+	    Category category =categoryRepository.findById(post.getCategory().getId()).orElse(null);
 
 	    post.setCategory(category);
 
 	    // Image Upload
 	    if (!imageFile.isEmpty()) {
-
-	        String fileName =
-	                imageFile.getOriginalFilename();
-
-	        Path uploadPath =
-	                Paths.get(
-	                        "src/main/resources/static/uploads");
+	        String fileName =imageFile.getOriginalFilename();
+	        Path uploadPath =Paths.get("src/main/resources/static/uploads");
 
 	        // Folder create if not exists
 	        if (!Files.exists(uploadPath)) {
 	            Files.createDirectories(uploadPath);
 	        }
 
-	        Files.copy(
-	                imageFile.getInputStream(),
-	                uploadPath.resolve(fileName));
-
+	        Files.copy(imageFile.getInputStream(),uploadPath.resolve(fileName));
 	        post.setImageName(fileName);
 	    }
 	    post.setCreatedAt(LocalDateTime.now());
@@ -95,20 +84,14 @@ public class PostController {
 @GetMapping("/")
 public String home(Model model) {
 
-    model.addAttribute(
-            "posts",
-            postRepository.findAll());
+    model.addAttribute("posts",postRepository.findAll());
 
     return "home";
 }
 @GetMapping("/post/{id}")
 public String viewPost(
-        @PathVariable Long id,
-        Model model) {
-
-    Post post = postRepository.findById(id)
-            .orElse(null);
-
+        @PathVariable Long id,Model model) {
+    Post post = postRepository.findById(id) .orElse(null);
     model.addAttribute("post", post);
 
     return "view-post";
@@ -119,19 +102,15 @@ public String editPostPage(
         Model model,
         Principal principal) {
 
-    Post post = postRepository.findById(id)
-            .orElse(null);
-    if (!post.getAuthor().getEmail()
-            .equals(principal.getName())) {
+    Post post = postRepository.findById(id).orElse(null);
+    if (!post.getAuthor().getEmail().equals(principal.getName())) {
 
         return "redirect:/";
     }
 
     String email = principal.getName();
 
-    if (!post.getAuthor()
-            .getEmail()
-            .equals(email)) {
+    if (!post.getAuthor().getEmail().equals(email)) {
 
         return "redirect:/";
     }
@@ -142,49 +121,35 @@ public String editPostPage(
 }
 @PostMapping("/post/update")
 public String updatePost(
-        @ModelAttribute Post updatedPost,
-        Principal principal) {
+        @ModelAttribute Post updatedPost,Principal principal) {
 
-    Post existingPost =
-            postRepository.findById(
-                    updatedPost.getId())
-                    .orElse(null);
+    Post existingPost = postRepository.findById(updatedPost.getId()).orElse(null);
 
     String email = principal.getName();
 
-    if (!existingPost.getAuthor()
-            .getEmail()
-            .equals(email)) {
+    if (!existingPost.getAuthor().getEmail().equals(email)) {
 
         return "redirect:/";
     }
 
-    existingPost.setTitle(
-            updatedPost.getTitle());
+    existingPost.setTitle(updatedPost.getTitle());
 
-    existingPost.setContent(
-            updatedPost.getContent());
+    existingPost.setContent(updatedPost.getContent());
 
     postRepository.save(existingPost);
 
-    return "redirect:/post/"
-            + existingPost.getId();
+    return "redirect:/post/"+ existingPost.getId();
 }
 @GetMapping("/post/delete/{id}")
-public String deletePost(
-        @PathVariable Long id,
-        Principal principal) {
+public String deletePost( @PathVariable Long id,Principal principal) {
 
-	Post post =
-	        postRepository.findById(id)
-	        .orElse(null);
+	Post post =postRepository.findById(id).orElse(null);
 
 	if (post == null) {
 	    return "redirect:/";
 	}
 
-	if (!post.getAuthor().getEmail()
-	        .equals(principal.getName())) {
+	if (!post.getAuthor().getEmail().equals(principal.getName())) {
 
 	    return "redirect:/";
 	}
@@ -195,21 +160,21 @@ public String deletePost(
 
 }
 @GetMapping("/profile")
-public String profile(
-        Principal principal,
-        Model model) {
+public String profile(Principal principal,Model model) {
 
-    User user =
-            userRepository.findByEmail(
-                    principal.getName());
+    User user =userRepository.findByEmail(principal.getName());
 
     model.addAttribute("user", user);
 
-    model.addAttribute(
-            "posts",
-            postRepository.findByAuthorId(
-                    user.getId()));
+    model.addAttribute("posts",postRepository.findByAuthorId(user.getId()));
 
     return "profile";
+}
+@GetMapping("/search")
+public String searchPosts(@RequestParam String keyword,Model model) {
+
+    model.addAttribute("posts",postRepository.searchPosts(keyword));
+
+    return "home";
 }
 }

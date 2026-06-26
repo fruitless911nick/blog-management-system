@@ -5,9 +5,7 @@
 <h1 th:text="${post.title}"></h1>
 <p>
     Posted on:
-    <span th:text="${#temporals.format(
-        post.createdAt,
-        'dd-MM-yyyy HH:mm')}">
+    <span th:text="${#temporals.format( post.createdAt,'dd-MM-yyyy HH:mm')}">
     </span>
 </p>
 
@@ -31,14 +29,9 @@
 
 <form action="/comment/add" method="post">
 
-    <input type="hidden"
-           name="postId"
-           th:value="${post.id}">
+    <input type="hidden" name="postId" th:value="${post.id}">
 
-    <textarea name="content"
-              rows="4"
-              cols="40"
-              required>
+    <textarea name="content" rows="4" cols="40" required>
     </textarea>
 
     <br><br>

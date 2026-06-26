@@ -29,18 +29,11 @@ public class CommentController {
     private UserRepository userRepository;
 
     @PostMapping("/comment/add")
-    public String addComment(
-            @RequestParam Long postId,
-            @RequestParam String content,
-            Principal principal) {
+    public String addComment( @RequestParam Long postId,@RequestParam String content,Principal principal) {
 
-        User user =
-            userRepository.findByEmail(
-                    principal.getName());
+        User user =userRepository.findByEmail(principal.getName());
 
-        Post post =
-            postRepository.findById(postId)
-                    .orElse(null);
+        Post post =postRepository.findById(postId).orElse(null);
 
         Comment comment = new Comment();
 
@@ -52,17 +45,5 @@ public class CommentController {
 
         return "redirect:/post/" + postId;
     }
-    @GetMapping("/search")
-    public String searchPosts(
-            @RequestParam String keyword,
-            Model model) {
-
-        model.addAttribute(
-                "posts",
-                postRepository
-                    .findByTitleContainingIgnoreCase(
-                            keyword));
-
-        return "home";
-    }
+    
 }

@@ -16,6 +16,14 @@ public class Comment {
 private Long id;
 
 private String content;
+
+@ManyToOne
+@JoinColumn(name="user_id")
+private User user;
+
+@ManyToOne
+@JoinColumn(name="post_id")
+private Post post;
 public Long getId() {
 	return id;
 }
@@ -40,13 +48,7 @@ public void setPost(Post post) {
 	this.post = post;
 }
 
-@ManyToOne
-@JoinColumn(name="user_id")
-private User user;
 
-@ManyToOne
-@JoinColumn(name="post_id")
-private Post post;
 public Comment() {}
 
 public Comment(Long id, String content, User user, Post post) {
