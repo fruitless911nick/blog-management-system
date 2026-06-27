@@ -57,6 +57,46 @@
     <hr>
 
 </div>
+<hr>
 
+<div style="text-align:center; margin-top:20px;">
+
+  
+
+    <a th:if="${isSearch != true and currentPage > 0}"
+       th:href="@{/(page=${currentPage-1})}">
+        ⬅ Previous
+    </a>
+
+    <a th:if="${isSearch == true and currentPage > 0}"
+       th:href="@{/search(keyword=${keyword},page=${currentPage-1})}">
+        ⬅ Previous
+    </a>
+
+    <span th:each="i : ${#numbers.sequence(0,totalPages-1)}">
+
+        <a th:if="${isSearch != true}"
+           th:href="@{/(page=${i})}"
+           th:text="${i+1}">
+        </a>
+
+        <a th:if="${isSearch == true}"
+           th:href="@{/search(keyword=${keyword},page=${i})}"
+           th:text="${i+1}">
+        </a>
+
+    </span>
+
+    <a th:if="${isSearch != true and currentPage < totalPages-1}"
+       th:href="@{/(page=${currentPage+1})}">
+        Next ➡
+    </a>
+
+    <a th:if="${isSearch == true and currentPage < totalPages-1}"
+       th:href="@{/search(keyword=${keyword},page=${currentPage+1})}">
+        Next ➡
+    </a>
+
+</div>
 </body>
 </html>

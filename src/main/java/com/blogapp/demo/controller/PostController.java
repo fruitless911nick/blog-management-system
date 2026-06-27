@@ -6,6 +6,9 @@ import java.security.Principal;
 import java.time.LocalDateTime;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -84,15 +87,26 @@ public class PostController {
 	    return "redirect:/";
 	}
 	@GetMapping("/")
-	public String home(Model model,Principal principal, HttpServletResponse response) {
-		response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
-		response.setHeader("Pragma", "no-cache");
-		response.setDateHeader("Expires", 0);
+	public String home(
+	        @RequestParam(defaultValue = "0") int page,
+	        Model model,
+	        Principal principal,
+	        HttpServletResponse response) {
 
-    model.addAttribute("posts",postRepository.findAll());
+	    response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+	    response.setHeader("Pragma", "no-cache");
+	    response.setDateHeader("Expires", 0);
 
-    return "home";
-}
+	    Pageable pageable = PageRequest.of(page, 5);
+
+	    Page<Post> postPage = postRepository.findAll(pageable);
+
+	    model.addAttribute("posts", postPage.getContent());
+	    model.addAttribute("currentPage", page);
+	    model.addAttribute("totalPages", postPage.getTotalPages());
+
+	    return "home";
+	}
 @GetMapping("/post/{id}")
 public String viewPost(
         @PathVariable Long id,Model model) {
@@ -176,9 +190,22 @@ public String profile(Principal principal,Model model) {
     return "profile";
 }
 @GetMapping("/search")
-public String searchPosts(@RequestParam String keyword,Model model) {
+public String searchPosts(
+        @RequestParam String keyword,
+        @RequestParam(defaultValue = "0") int page,
+        Model model) {
 
-    model.addAttribute("posts",postRepository.searchPosts(keyword));
+    Pageable pageable = PageRequest.of(page, 5);
+
+    Page<Post> postPage =
+            postRepository.searchPosts(keyword, pageable);
+
+    model.addAttribute("posts", postPage.getContent());
+    model.addAttribute("currentPage", page);
+    model.addAttribute("totalPages", postPage.getTotalPages());
+
+    model.addAttribute("keyword", keyword);
+    model.addAttribute("isSearch", true);
 
     return "home";
 }

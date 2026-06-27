@@ -33,9 +33,7 @@ private User author;
 @JoinColumn(name = "category_id")
 private Category category;
 
-@OneToMany(mappedBy = "post",
-cascade = CascadeType.ALL)
-
+@OneToMany(mappedBy = "post",cascade = CascadeType.ALL)
 private List<Comment> comments;
 private String imageName;
 
