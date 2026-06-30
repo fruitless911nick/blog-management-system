@@ -69,7 +69,13 @@
 
                 <div class="input-group">
 
-             <input class="form-control" type="text" name="keyword" placeholder="Search by title, author, category or date (YYYY-MM-DD)">
+
+                    <input
+                            class="form-control"
+                            type="text"
+                            name="keyword"
+                            placeholder="Search by title, author, category or date (YYYY-MM-DD)">
+
 
                     <button class="btn btn-primary">
 
@@ -91,7 +97,10 @@
 
         <div class="card shadow mb-4">
 
-      <img th:if="${post.imageName != null}" th:src="@{/uploads/{img}(img=${post.imageName})}"
+
+            <img
+                    th:if="${post.imageName != null}"
+                    th:src="@{/uploads/{img}(img=${post.imageName})}"
                     class="card-img-top"
                     style="height:250px;object-fit:cover;">
 
@@ -177,9 +186,11 @@
 				                ❤️ Unlike
 				            </span>
 
+
 				           <span th:unless="${likedPosts[post.id]}">
 				                🤍 Like
 				            </span> 
+
 
 				        </button>
 
@@ -193,7 +204,6 @@
 				</div>
                     </form>
 
-                   
 
                 </div>
 
