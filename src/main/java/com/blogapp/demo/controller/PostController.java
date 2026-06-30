@@ -4,6 +4,8 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.Principal;
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -19,9 +21,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.blogapp.demo.entity.Category;
+import com.blogapp.demo.entity.Like;
 import com.blogapp.demo.entity.Post;
 import com.blogapp.demo.entity.User;
 import com.blogapp.demo.repository.CategoryRepository;
+import com.blogapp.demo.repository.LikeRepository;
 import com.blogapp.demo.repository.PostRepository;
 import com.blogapp.demo.repository.UserRepository;
 
@@ -34,32 +38,30 @@ import java.security.Principal;
 @Controller
 public class PostController {
 	@Autowired
+	private LikeRepository likeRepository;
+	@Autowired
 	private PostRepository postRepository;
    @Autowired
    private CategoryRepository categoryRepository;
 	@Autowired
 	private UserRepository userRepository;
 	@GetMapping("/post/create")
-	public String createPostPage(Model model) {
-
-	    model.addAttribute(
-	            "categories",
-	            categoryRepository.findAll());
-
+	public String createPostPage(Model model,Principal principal) {
+	    model.addAttribute( "categories",categoryRepository.findAll());
+	    User user = userRepository.findByEmail(principal.getName());
+	    model.addAttribute("user", user);
 	    return "create-post";
 	}
 	@PostMapping("/post/save")
-	public String savePost(
-	        @ModelAttribute Post post,
-	        @RequestParam("imageFile") MultipartFile imageFile,
-	        Principal principal)
-	        throws Exception {
+	public String savePost(@ModelAttribute Post post, @RequestParam("imageFile") MultipartFile imageFile,
+	        Principal principal,Model model) throws Exception {
 
 	    // Logged-in user
 	    String email = principal.getName();  // user ka email lega jo login kiya hai
 
 	    User user = userRepository.findByEmail(email);
-
+	    
+	    
 	    post.setAuthor(user);
 
 	    // Category
@@ -69,7 +71,7 @@ public class PostController {
 
 	    // Image Upload
 	    if (!imageFile.isEmpty()) {
-	        String fileName =imageFile.getOriginalFilename();
+	        String fileName =System.currentTimeMillis()+imageFile.getOriginalFilename();
 	        Path uploadPath =Paths.get("src/main/resources/static/uploads");
 
 	        // Folder create if not exists
@@ -86,20 +88,60 @@ public class PostController {
 
 	    return "redirect:/";
 	}
-	@GetMapping("/")
-	public String home(
-	        @RequestParam(defaultValue = "0") int page,
-	        Model model,
-	        Principal principal,
-	        HttpServletResponse response) {
+	@PostMapping("/post/{id}/like")
+	public String likePost(@PathVariable Long id, Principal principal) {
 
+	    // Logged in user
+	    User user = userRepository.findByEmail(principal.getName());
+
+	    // Current post
+	    Post post = postRepository.findById(id).orElse(null);
+
+	    if (post == null) {
+	        return "redirect:/";
+	    }
+
+	    // Already liked?
+	    if (likeRepository.existsByUserAndPost(user, post)) {
+
+	        likeRepository.deleteByUserAndPost(user, post);
+
+	    } else {
+
+	        Like like = new Like(user, post);
+	        likeRepository.save(like);
+	    }
+
+	    return "redirect:/";
+	}
+	@GetMapping("/")
+public String home(@RequestParam(defaultValue = "0") int page, Model model,Principal principal,HttpServletResponse response) {
 	    response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
 	    response.setHeader("Pragma", "no-cache");
 	    response.setDateHeader("Expires", 0);
-
+	    
+	    User user = userRepository.findByEmail(principal.getName());
+	    model.addAttribute("user", user);
 	    Pageable pageable = PageRequest.of(page, 5);
 
 	    Page<Post> postPage = postRepository.findAll(pageable);
+	    Map<Long, Long> likeCounts = new HashMap<>();
+
+	    for (Post post : postPage.getContent()) {
+	        likeCounts.put(post.getId(),likeRepository.countByPost(post));
+	    }
+
+	    model.addAttribute("likeCounts", likeCounts);
+	    Map<Long, Boolean> likedPosts = new HashMap<>();
+
+	    User currentUser =userRepository.findByEmail(principal.getName());
+
+	    for(Post post : postPage.getContent()){
+
+	        likedPosts.put(post.getId(), likeRepository.existsByUserAndPost(currentUser,post));
+	    }
+
+	    model.addAttribute("likedPosts", likedPosts);
 
 	    model.addAttribute("posts", postPage.getContent());
 	    model.addAttribute("currentPage", page);
@@ -107,47 +149,60 @@ public class PostController {
 
 	    return "home";
 	}
-@GetMapping("/post/{id}")
-public String viewPost(
-        @PathVariable Long id,Model model) {
-    Post post = postRepository.findById(id) .orElse(null);
-    model.addAttribute("post", post);
+	@GetMapping("/post/{id}")
+	public String viewPost( @PathVariable Long id,Model model,Principal principal) {
 
-    return "view-post";
-}
-@GetMapping("/post/edit/{id}")
-public String editPostPage(
-        @PathVariable Long id,
-        Model model,
-        Principal principal) {
+	    Post post = postRepository.findById(id).orElse(null);
+	    User user = userRepository.findByEmail(principal.getName());
+	    model.addAttribute("user", user);
+	    if (post == null) {
+	        return "redirect:/";
+	    }
 
-    Post post = postRepository.findById(id).orElse(null);
-    if (!post.getAuthor().getEmail().equals(principal.getName())) {
+	    model.addAttribute("post", post);
 
-        return "redirect:/";
-    }
+	    // Total Likes
+	    long likeCount = likeRepository.countByPost(post);
+	    model.addAttribute("likeCount", likeCount);
 
-    String email = principal.getName();
+	    // Current User
+	    User currentUser =userRepository.findByEmail(principal.getName());
 
-    if (!post.getAuthor().getEmail().equals(email)) {
+	    // User already liked?
+	    boolean liked =likeRepository.existsByUserAndPost(currentUser, post);
 
-        return "redirect:/";
-    }
+	    model.addAttribute("liked", liked);
 
-    model.addAttribute("post", post);
+	    return "view-post";
+	}
+	@GetMapping("/post/edit/{id}")
+	public String editPostPage(@PathVariable Long id, Model model,Principal principal) {
+		User user = userRepository.findByEmail(principal.getName());
+		model.addAttribute("user", user);
+	    Post post = postRepository.findById(id).orElse(null);
 
-    return "edit-post";
-}
+	    if (post == null) {
+	        return "redirect:/";
+	    }
+
+	    // Only the author can edit
+	    if (!post.getAuthor().getEmail().equals(principal.getName())) {
+	        return "redirect:/";
+	    }
+
+	    model.addAttribute("post", post);
+
+	    return "edit-post";
+	}
 @PostMapping("/post/update")
-public String updatePost(
-        @ModelAttribute Post updatedPost,Principal principal) {
-
+public String updatePost(@ModelAttribute Post updatedPost,Principal principal,Model model) {
+	User user = userRepository.findByEmail(principal.getName());
+	model.addAttribute("user", user);
     Post existingPost = postRepository.findById(updatedPost.getId()).orElse(null);
 
     String email = principal.getName();
 
     if (!existingPost.getAuthor().getEmail().equals(email)) {
-
         return "redirect:/";
     }
 
@@ -190,23 +245,37 @@ public String profile(Principal principal,Model model) {
     return "profile";
 }
 @GetMapping("/search")
-public String searchPosts(
-        @RequestParam String keyword,
-        @RequestParam(defaultValue = "0") int page,
-        Model model) {
+public String searchPosts(@RequestParam String keyword,@RequestParam(defaultValue = "0") int page, Model model, Principal principal) {
 
     Pageable pageable = PageRequest.of(page, 5);
 
-    Page<Post> postPage =
-            postRepository.searchPosts(keyword, pageable);
+    Page<Post> postPage = postRepository.searchPosts(keyword, pageable);
 
+    // Current User
+    User currentUser = userRepository.findByEmail(principal.getName());
+
+    model.addAttribute("user", currentUser);
+
+    // Like Counts
+    Map<Long, Long> likeCounts = new HashMap<>();
+
+    // Liked Posts
+    Map<Long, Boolean> likedPosts = new HashMap<>();
+
+    for (Post post : postPage.getContent()) {
+
+        likeCounts.put(post.getId(),likeRepository.countByPost(post));
+
+        likedPosts.put(post.getId(),likeRepository.existsByUserAndPost(currentUser, post));
+    }
+
+    model.addAttribute("likeCounts", likeCounts);
+    model.addAttribute("likedPosts", likedPosts);
     model.addAttribute("posts", postPage.getContent());
     model.addAttribute("currentPage", page);
     model.addAttribute("totalPages", postPage.getTotalPages());
-
     model.addAttribute("keyword", keyword);
     model.addAttribute("isSearch", true);
-
     return "home";
 }
 }
