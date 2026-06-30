@@ -1,37 +1,207 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<body>
+<head>
 
-<h1>My Profile</h1>
+    <title>TrueBook | My Profile</title>
 
-<p>
-    Username:
-    <span th:text="${user.username}">
-    </span>
-</p>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 
-<p>
-    Email:
-    <span th:text="${user.email}">
-    </span>
-</p>
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
-<hr>
+</head>
 
-<h2>My Posts</h2>
+<body class="bg-light">
 
-<div th:each="post : ${posts}">
+<div class="container mt-4">
 
-    <h3 th:text="${post.title}">
+    <!-- Navbar -->
+
+	<nav class="navbar navbar-expand-lg navbar-dark bg-primary rounded shadow">
+
+	    <div class="container-fluid">
+
+	        <a class="navbar-brand fw-bold" th:href="@{/}">
+	            <i class="bi bi-journal-bookmark-fill"></i>
+	            TrueBook
+	        </a>
+
+	        <div class="ms-auto d-flex align-items-center">
+
+	            <span class="text-white me-3">
+	                <i class="bi bi-person-circle"></i>
+	                Welcome,
+	                <strong th:text="${user.username}"></strong> 👋
+	            </span>
+
+	            <a class="btn btn-success me-2"
+	               th:href="@{/}">
+	                <i class="bi bi-house-fill"></i>
+	                Home
+	            </a>
+
+	            <a class="btn btn-primary me-2"
+	               th:href="@{/post/create}">
+	                <i class="bi bi-plus-circle"></i>
+	                Create Post
+	            </a>
+
+	            <a class="btn btn-danger"
+	               th:href="@{/logout}">
+	                <i class="bi bi-box-arrow-right"></i>
+	                Logout
+	            </a>
+
+	        </div>
+
+	    </div>
+
+	</nav>
+
+    <br>
+
+    <!-- User Info -->
+
+    <div class="card shadow mb-4">
+
+        <div class="card-body">
+
+            <h3 class="text-primary">
+
+                <i class="bi bi-person-fill"></i>
+
+                <span th:text="${user.username}"></span>
+
+            </h3>
+
+            <p>
+
+                <i class="bi bi-envelope-fill"></i>
+
+                <strong>Email :</strong>
+
+                <span th:text="${user.email}"></span>
+
+            </p>
+
+            <p>
+
+                <i class="bi bi-file-earmark-post"></i>
+
+                <strong>Total Posts :</strong>
+
+                <span th:text="${posts.size()}"></span>
+
+            </p>
+
+        </div>
+
+    </div>
+
+    <!-- My Posts -->
+
+    <h3 class="mb-3">
+
+        <i class="bi bi-journal-richtext"></i>
+
+        My Posts
+
     </h3>
 
-    <a th:href="@{/post/{id}(id=${post.id})}">
-        View Post
-    </a>
+    <div th:each="post : ${posts}">
 
-    <hr>
+        <div class="card shadow mb-4">
+
+            <img
+                th:if="${post.imageName != null}"
+                th:src="@{/uploads/{img}(img=${post.imageName})}"
+                class="card-img-top"
+                style="height:220px;object-fit:cover;">
+
+            <div class="card-body">
+
+                <h4 th:text="${post.title}"></h4>
+
+                <p th:text="${post.content}"></p>
+
+                <p>
+
+                    <strong>Category :</strong>
+
+                    <span
+                        th:text="${post.category!=null ? post.category.name : 'No Category'}">
+                    </span>
+
+                </p>
+
+                <p>
+
+                    <strong>Created :</strong>
+
+                    <span
+                        th:text="${#temporals.format(post.createdAt,'dd MMM yyyy, hh:mm a')}">
+                    </span>
+
+                </p>
+
+                <div class="d-flex gap-2">
+
+                    <a
+                        class="btn btn-primary"
+
+                        th:href="@{/post/{id}(id=${post.id})}">
+
+                        <i class="bi bi-book"></i>
+
+                        View
+
+                    </a>
+
+                    <a
+                        class="btn btn-warning"
+
+                        th:href="@{/post/edit/{id}(id=${post.id})}">
+
+                        <i class="bi bi-pencil-square"></i>
+
+                        Edit
+
+                    </a>
+
+                    <a
+                        class="btn btn-danger"
+
+                        th:href="@{/post/delete/{id}(id=${post.id})}"
+
+                        onclick="return confirm('Delete this post?')">
+
+                        <i class="bi bi-trash"></i>
+
+                        Delete
+
+                    </a>
+
+                    <span class="badge bg-danger align-self-center"
+                          th:if="${likeCounts != null}">
+
+                        ❤️
+                        <span th:text="${likeCounts[post.id]}"></span>
+
+                    </span>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
 
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
 </body>
+
 </html>
+
