@@ -49,35 +49,9 @@ public class PostService {
     public Post getPostById(Long id) {
         return postRepository.findById(id).orElse(null);
     }
-
-//    public Post savePost(Post post, MultipartFile imageFile, User user) throws Exception {
-//        post.setAuthor(user);
-//
-//        if (post.getCategory() != null && post.getCategory().getId() != null) {
-//            Category category = categoryRepository.findById(post.getCategory().getId()).orElse(null);
-//            post.setCategory(category);
-//        }
-//
-//        if (!imageFile.isEmpty()) {
-//            String fileName = System.currentTimeMillis() + imageFile.getOriginalFilename();
-//            Path uploadPath = Paths.get("src/main/resources/static/uploads");
-//
-//            if (!Files.exists(uploadPath)) {
-//                Files.createDirectories(uploadPath);
-//            }
-//
-//            Files.copy(imageFile.getInputStream(), uploadPath.resolve(fileName));
-//            post.setImageName(fileName);
-//        }
-//
-//        post.setCreatedAt(LocalDateTime.now());
-//        return postRepository.save(post);
-//    }
     public Post savePost(Post post, MultipartFile imageFile, User user) throws Exception {
 
-        long totalStart = System.currentTimeMillis();
-
-        // Set author
+        // Set logged-in user as author
         post.setAuthor(user);
 
         // Set category
@@ -85,49 +59,38 @@ public class PostService {
             Category category = categoryRepository
                     .findById(post.getCategory().getId())
                     .orElse(null);
+
             post.setCategory(category);
         }
 
         // Upload image
         if (!imageFile.isEmpty()) {
 
-            long uploadStart = System.currentTimeMillis();
-
-            String fileName = System.currentTimeMillis()
-                    + imageFile.getOriginalFilename();
+            String originalFileName = imageFile.getOriginalFilename();
+            String fileName = System.currentTimeMillis() + "_" + originalFileName;
 
             Path uploadPath = Paths.get("uploads");
 
+            // Create uploads folder if it doesn't exist
             if (!Files.exists(uploadPath)) {
                 Files.createDirectories(uploadPath);
             }
 
-            Files.copy(imageFile.getInputStream(), uploadPath.resolve(fileName));
+            // Save image
+            Files.copy(
+                    imageFile.getInputStream(),
+                    uploadPath.resolve(fileName)
+            );
 
             post.setImageName(fileName);
-
-            System.out.println("--------------------------------");
-            System.out.println("Image Upload Time : "
-                    + (System.currentTimeMillis() - uploadStart) + " ms");
         }
 
-        // Save to database
-        long dbStart = System.currentTimeMillis();
-
+        // Set creation time
         post.setCreatedAt(LocalDateTime.now());
 
-        Post savedPost = postRepository.save(post);
-
-        System.out.println("Database Save Time : "
-                + (System.currentTimeMillis() - dbStart) + " ms");
-
-        System.out.println("Total savePost Time : "
-                + (System.currentTimeMillis() - totalStart) + " ms");
-        System.out.println("--------------------------------");
-
-        return savedPost;
+        // Save post
+        return postRepository.save(post);
     }
-
     public void toggleLike(Long postId, User user) {
         Post post = postRepository.findById(postId).orElse(null);
 
