@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -55,7 +56,7 @@ public String home(@RequestParam(defaultValue = "0") int page, Model model,Princ
 	    
 	    User user = postService.getUserByEmail(principal.getName());
 	    model.addAttribute("user", user);
-	    Pageable pageable = PageRequest.of(page, 5);
+	    Pageable pageable = PageRequest.of(page, 5 , Sort.by("createdAt").descending());
 
 	    Page<Post> postPage = postService.getPosts(pageable);
 	    model.addAttribute("likeCounts", postService.getLikeCounts(postPage.getContent()));
@@ -136,7 +137,7 @@ public String profile(Principal principal,Model model) {
 @GetMapping("/search")
 public String searchPosts(@RequestParam String keyword,@RequestParam(defaultValue = "0") int page, Model model, Principal principal) {
 
-    Pageable pageable = PageRequest.of(page, 5);
+    Pageable pageable = PageRequest.of(page, 5, Sort.by("createdAt").descending());
 
     Page<Post> postPage = postService.searchPosts(keyword, pageable);
 
