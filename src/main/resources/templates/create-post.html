@@ -13,15 +13,23 @@
 
 </head>
 
-<body class="bg-light">
+<body class="bg-light" style="
+        background-image: url('/background-image/wall2.jpg');
+        background-repeat: no-repeat;
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+    ">
 
 <div class="container mt-4">
 
     <!-- Navbar -->
 
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary rounded shadow">
+	<nav class="navbar navbar-expand-lg navbar-dark rounded shadow"
+		     style="background-color: #1f1f1f">	
+		    <div class="container-fluid">
 
-        <div class="container-fluid">
+        <div class="container-fluid"  >
 
             <a class="navbar-brand fw-bold" th:href="@{/}">
                 <i class="bi bi-journal-bookmark-fill"></i>
@@ -64,7 +72,7 @@
 
     <!-- Create Post Card -->
 
-    <div class="card shadow">
+    <div class="card shadow" style="background-color: #ffeddf" >
 
         <div class="card-body">
 
