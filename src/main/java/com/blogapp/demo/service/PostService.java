@@ -49,31 +49,48 @@ public class PostService {
     public Post getPostById(Long id) {
         return postRepository.findById(id).orElse(null);
     }
+   public Post savePost(Post post, MultipartFile imageFile, User user) throws Exception {
 
-    public Post savePost(Post post, MultipartFile imageFile, User user) throws Exception {
-        post.setAuthor(user);
+    // Set logged-in user as author
+    post.setAuthor(user);
 
-        if (post.getCategory() != null && post.getCategory().getId() != null) {
-            Category category = categoryRepository.findById(post.getCategory().getId()).orElse(null);
-            post.setCategory(category);
-        }
+    // Set category
+    if (post.getCategory() != null && post.getCategory().getId() != null) {
+        Category category = categoryRepository
+                .findById(post.getCategory().getId())
+                .orElse(null);
 
-        if (!imageFile.isEmpty()) {
-            String fileName = System.currentTimeMillis() + imageFile.getOriginalFilename();
-            Path uploadPath = Paths.get("src/main/resources/static/uploads");
-
-            if (!Files.exists(uploadPath)) {
-                Files.createDirectories(uploadPath);
-            }
-
-            Files.copy(imageFile.getInputStream(), uploadPath.resolve(fileName));
-            post.setImageName(fileName);
-        }
-
-        post.setCreatedAt(LocalDateTime.now());
-        return postRepository.save(post);
+        post.setCategory(category);
     }
 
+    // Upload image
+    if (!imageFile.isEmpty()) {
+
+        String originalFileName = imageFile.getOriginalFilename();
+        String fileName = System.currentTimeMillis() + "_" + originalFileName;
+
+        Path uploadPath = Paths.get("uploads");
+
+        // Create uploads folder if it doesn't exist
+        if (!Files.exists(uploadPath)) {
+            Files.createDirectories(uploadPath);
+        }
+
+        // Save image
+        Files.copy(
+                imageFile.getInputStream(),
+                uploadPath.resolve(fileName)
+        );
+
+        post.setImageName(fileName);
+    }
+
+    // Set creation time
+    post.setCreatedAt(LocalDateTime.now());
+
+    // Save post
+    return postRepository.save(post);
+}
     public void toggleLike(Long postId, User user) {
         Post post = postRepository.findById(postId).orElse(null);
 
