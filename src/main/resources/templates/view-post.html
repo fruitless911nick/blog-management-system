@@ -25,52 +25,52 @@ style="
 	
 	<nav class="navbar navbar-expand-lg navbar-dark rounded shadow"
 		     style="background-color: #1f1f1f;">	
-		    <div class="container-fluid"> <!--<nav class="navbar navbar-expand-lg navbar-dark bg-primary rounded shadow"> -->
+		    <div class="container-fluid">
 
-	    <div class="container-fluid">
+		        <a class="navbar-brand fw-bold" th:href="@{/}">
+		            <i class="bi bi-journal-bookmark-fill"></i>
+		            TrueBook
+		        </a>
 
-	        <a class="navbar-brand fw-bold" th:href="@{/}">
-	            <i class="bi bi-journal-bookmark-fill"></i>
-	            TrueBook
-	        </a>
+		        <div class="ms-auto d-flex align-items-center">
 
-	        <div class="ms-auto d-flex align-items-center">
+		            <span class="text-white me-3">
+		                <i class="bi bi-person-circle"></i>
+		                Welcome,
+		                <strong th:text="${user.username}"></strong> 👋
+		            </span>
+					<a class="btn btn-primary me-2"
+					              th:href="@{/}">
 
-	            <span class="text-white me-3">
-	                <i class="bi bi-person-circle"></i>
-	                Welcome,
-	                <strong th:text="${user.username}"></strong> 👋
-	            </span>
+					               <i class="bi bi-house-fill"></i>
 
-	            <a class="btn btn-success me-2"
-	               th:href="@{/}">
-	                <i class="bi bi-house-fill"></i>
-	                Home
-	            </a>
+					               Home
 
-	            <a class="btn btn-warning me-2"
-	               th:href="@{/profile}">
-	                <i class="bi bi-person-badge-fill"></i>
-	                My Profile
-	            </a>
+					           </a>
+		            <a class="btn btn-success me-2"
+		               th:href="@{/post/create}">
+		                <i class="bi bi-plus-circle"></i>
+		                Create Post
+		            </a>
 
-	            <a class="btn btn-primary me-2"
-	               th:href="@{/post/create}">
-	                <i class="bi bi-plus-circle"></i>
-	                Create Post
-	            </a>
+		            <a class="btn btn-warning me-2"
+		               th:href="@{/profile}">
+		                <i class="bi bi-person-badge-fill"></i>
+		                My Profile
+		            </a>
 
-	            <a class="btn btn-danger"
-	               th:href="@{/logout}">
-	                <i class="bi bi-box-arrow-right"></i>
-	                Logout
-	            </a>
+		            <a class="btn btn-danger"
+		               th:href="@{/logout}">
+		                <i class="bi bi-box-arrow-right"></i>
+		                Logout
+		            </a>
 
-	        </div>
+		        </div>
 
-	    </div>
+		    </div>
 
-	</nav>
+		</nav>
+
 	
 
     <br>
@@ -82,8 +82,8 @@ style="
         <img
                 th:if="${post.imageName!=null}"
                 th:src="@{/uploads/{img}(img=${post.imageName})}"
-                class="card-img-top"
-                style="height:500px;object-fit:cover;">
+				class="card-img-top w-50 h-50"
+				style="height:250px;object-fit:cover; padding-left: 5px;padding-top: 5px;">
 
         <div class="card-body">
 
