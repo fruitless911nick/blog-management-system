@@ -140,17 +140,41 @@ public class PostService {
                 && post.getAuthor().getEmail().equals(email);
     }
 
-    public Post updatePost(Post updatedPost, String email) {
-        Post existingPost = postRepository.findById(updatedPost.getId()).orElse(null);
+    public Post updatePost(Post updatedPost,
+            MultipartFile imageFile,
+            String email) throws Exception {
 
-        if (existingPost == null || !isPostAuthor(existingPost, email)) {
-            return null;
-        }
+Post existingPost = postRepository.findById(updatedPost.getId()).orElse(null);
 
-        existingPost.setTitle(updatedPost.getTitle());
-        existingPost.setContent(updatedPost.getContent());
-        return postRepository.save(existingPost);
-    }
+if (existingPost == null || !isPostAuthor(existingPost, email)) {
+return null;
+}
+
+existingPost.setTitle(updatedPost.getTitle());
+existingPost.setContent(updatedPost.getContent());
+existingPost.setCategory(updatedPost.getCategory());
+// Update image only if a new one was uploaded
+if (!imageFile.isEmpty()) {
+
+String originalFileName = imageFile.getOriginalFilename();
+String fileName = System.currentTimeMillis() + "_" + originalFileName;
+
+Path uploadPath = Paths.get("uploads");
+
+if (!Files.exists(uploadPath)) {
+ Files.createDirectories(uploadPath);
+}
+
+Files.copy(
+     imageFile.getInputStream(),
+     uploadPath.resolve(fileName)
+);
+
+existingPost.setImageName(fileName);
+}
+
+return postRepository.save(existingPost);
+}
 
     public boolean deletePost(Long id, String email) {
         Post post = postRepository.findById(id).orElse(null);

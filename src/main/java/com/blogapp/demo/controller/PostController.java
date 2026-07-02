@@ -99,14 +99,14 @@ public String home(@RequestParam(defaultValue = "0") int page, Model model,Princ
 	    }
 
 	    model.addAttribute("post", post);
-
+	    model.addAttribute("categories", postService.getAllCategories());
 	    return "edit-post";
 	}
 @PostMapping("/post/update")
-public String updatePost(@ModelAttribute Post updatedPost,Principal principal,Model model) {
+public String updatePost(@ModelAttribute Post updatedPost,@RequestParam("imageFile") MultipartFile imageFile,Principal principal,Model model) throws Exception {
 	User user = postService.getUserByEmail(principal.getName());
 	model.addAttribute("user", user);
-    Post updated = postService.updatePost(updatedPost, principal.getName());
+    Post updated = postService.updatePost(updatedPost, imageFile,principal.getName());
 
     if (updated == null) {
         return "redirect:/";

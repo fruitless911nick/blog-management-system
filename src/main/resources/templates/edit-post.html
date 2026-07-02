@@ -57,7 +57,7 @@
 
     <div class="card shadow">
 
-        <div class="card-body">
+        <div class="card-body" style="background-color: #ffeddf;">
 
             <h2>
 
@@ -116,7 +116,6 @@
 
                 <div class="mb-3"
                      th:if="${post.imageName!=null}">
-
                     <label class="form-label">
 
                         Current Image
@@ -168,9 +167,9 @@
 
                                 th:value="${category.id}"
 
-                                th:text="${category.name}"
+                                th:text="${category.name}" 
 
-                                th:selected="${category.id==post.category.id}">
+                            th:selected="${category.id==post.category.id}" >
                         </option>
 
                     </select>
