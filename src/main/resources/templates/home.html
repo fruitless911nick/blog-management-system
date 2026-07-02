@@ -109,8 +109,8 @@
             <img
                     th:if="${post.imageName != null}"
                     th:src="@{/uploads/{img}(img=${post.imageName})}"
-                    class="card-img-top"
-                    style="height:250px;object-fit:cover;">
+                    class="card-img-top w-50 h-50"
+                    style="height:250px;object-fit:cover;padding: 20px;">
 
             <div class="card-body">
 
