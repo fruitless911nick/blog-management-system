@@ -1,5 +1,5 @@
 package com.blogapp.demo.service;
-
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -17,6 +17,8 @@ public class EmailService {
 
     @Autowired
     private TemplateEngine templateEngine;
+    @Value("${mail.from}")
+private String fromEmail;
 
     public void sendWelcomeEmail(String email,String username) {
 
@@ -26,7 +28,7 @@ public class EmailService {
             String html= templateEngine.process("email/welcome", context);
             MimeMessage message= mailSender.createMimeMessage();
             MimeMessageHelper helper= new MimeMessageHelper(message,true);
-
+            helper.setFrom(fromEmail);
             helper.setTo(email);
             helper.setSubject("Welcome To TrueBook");
             helper.setText(html,true);
